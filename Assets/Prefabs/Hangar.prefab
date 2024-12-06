@@ -210,7 +210,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1133504421930906803}
   m_Layer: 0
-  m_Name: NavMeshExclusionZone
+  m_Name: NavMeshExclusions
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
