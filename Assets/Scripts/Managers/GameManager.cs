@@ -8,8 +8,12 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     private PlaneController[] planes;
     [HideInInspector] public HangarController[] hangars;
+    [HideInInspector] public UnityEvent planesAreWandering = new UnityEvent();
     [HideInInspector] public UnityEvent parkAllPlanes = new UnityEvent();
+    [HideInInspector] public UnityEvent allPlanesAreParked = new UnityEvent();
     [HideInInspector] public UnityEvent togglePlaneLights = new UnityEvent();
+
+    private bool isParkingInProgress = false;
 
     void Awake()
     {
@@ -20,19 +24,6 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-        }
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ParkAllPlanes();
-        }
-
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            TogglePlaneLights();
         }
     }
 
@@ -53,15 +44,55 @@ public class GameManager : MonoBehaviour
         {
             hangars[i].UpdateIdentifier(i);
         }
+
+        WanderPlanes();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ParkAllPlanes();
+        }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            TogglePlaneLights();
+        }
+
+        if (!isParkingInProgress) return;
+        CheckParkedPlanes();
+
+    }
+
+    public void WanderPlanes()
+    {
+        planesAreWandering.Invoke();
     }
 
     public void ParkAllPlanes()
     {
         parkAllPlanes.Invoke();
+        isParkingInProgress = true;
     }
 
     public void TogglePlaneLights()
     {
         togglePlaneLights.Invoke();
+    }
+
+    private void CheckParkedPlanes()
+    {
+        foreach (PlaneController plane in planes)
+        {
+            if (!plane.isParked)
+            {
+                return;
+            }
+        }
+
+        allPlanesAreParked.Invoke();
+        isParkingInProgress = false;
+        Debug.Log("All planes are parked!");
     }
 }

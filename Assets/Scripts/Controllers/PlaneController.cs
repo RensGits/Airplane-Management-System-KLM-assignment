@@ -21,20 +21,23 @@ public class PlaneController : MonoBehaviour
     private GameObject lights;
     private HangarController ascociatedHangar;
     public int planeId;
+
+    public bool isParked;
     private float timer;
 
-
     void Awake()
-    {   
-        currentState = PlaneState.Wandering;
+    {
+        
+        isParked = false;
         navMeshAgent = GetComponent<NavMeshAgent>();
         identifier = GetComponentInChildren<TextMeshPro>();
-        lights = transform.Find("Lights").gameObject;    
+        lights = transform.Find("Lights").gameObject;
         timer = wanderInterval;
     }
 
     void Start()
-    {
+    {   
+        GameManager.Instance.planesAreWandering.AddListener(() => currentState = PlaneState.Wandering);
         GameManager.Instance.parkAllPlanes.AddListener(() => currentState = PlaneState.Parking);
         GameManager.Instance.togglePlaneLights.AddListener(ToggleLights);
     }
@@ -66,12 +69,25 @@ public class PlaneController : MonoBehaviour
 
     private void handleParking()
     {
+        if (isParked) return;
+
         // Assign the associated hangar based on the planeId
         ascociatedHangar = GameManager.Instance.hangars[planeId];
 
         // If a hanger is found with the same index as the planeId, park the plane in the associated hangar
         if (!ascociatedHangar) return;
         navMeshAgent.destination = ascociatedHangar.transform.position;
+
+        // If a path is calculated, and the plane is within the stopping distance, it is parked
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+        {
+            isParked = true;
+            Debug.Log($"{gameObject.name} is parked at {ascociatedHangar.gameObject.name}");
+        }
+        else
+        {
+            isParked = false;
+        }
     }
 
     private Vector3 GetRandomPointOnNavMesh(Vector3 origin, float radius)
@@ -98,7 +114,7 @@ public class PlaneController : MonoBehaviour
         if (!identifier) return;
 
         // Update the identifier text to match the planeId and add 1 to make it more palletable
-        identifier.text = $"{planeId + 1}"; 
+        identifier.text = $"{planeId + 1}";
     }
 
     public void ToggleLights()
