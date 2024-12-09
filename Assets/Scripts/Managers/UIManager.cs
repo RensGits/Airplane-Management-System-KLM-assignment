@@ -12,14 +12,14 @@ public class UIManager : MonoBehaviour
 
     void Awake()
     {
-        GameManager.Instance.planesAreWandering.AddListener(handlePlanesAreWandering);
-        GameManager.Instance.parkAllPlanes.AddListener(handleParkAllPlanes);
-        GameManager.Instance.planesAreTakingOff.AddListener(handlePlanesAreTakingOff);
-        GameManager.Instance.allPlanesAreParked.AddListener(handleAllPlanesAreParked);
-        GameManager.Instance.planesAreFlying.AddListener(handleAllPlanesAreFlying);
+        GameManager.Instance.planesAreWandering.AddListener(HandlePlanesAreWandering);
+        GameManager.Instance.parkAllPlanes.AddListener(HandleParkAllPlanes);
+        GameManager.Instance.planesAreTakingOff.AddListener(HandlePlanesAreTakingOff);
+        GameManager.Instance.allPlanesAreParked.AddListener(HandleAllPlanesAreParked);
+        GameManager.Instance.planesAreFlying.AddListener(HandleAllPlanesAreFlying);
     }
-    
-    private void handlePlanesAreWandering()
+
+    private void HandlePlanesAreWandering()
     {   
         Debug.Log("Planes are wandering from UIManager");	
         // Adds the appropriate listener to the button
@@ -32,7 +32,7 @@ public class UIManager : MonoBehaviour
         parkWanderButtonText.text = "Park";
     }
 
-    private void handleParkAllPlanes()
+    private void HandleParkAllPlanes()
     {
         // Adds the appropriate listener to the button
         parkWanderButton.onClick.RemoveAllListeners();
@@ -45,24 +45,30 @@ public class UIManager : MonoBehaviour
     }
 
 
-    private void handleAllPlanesAreParked()
+    private void HandleAllPlanesAreParked()
     {
         Debug.Log("All planes are parked from UIManager");
         planeStateIndicatorIcon.sprite = planeStateData.planeUIElements[2].Icon;
         planeStateIndicatorText.text = planeStateData.planeUIElements[2].TextIndicator;
     }
 
-    private void handlePlanesAreTakingOff()
+    private void HandlePlanesAreTakingOff()
     {
         Debug.Log("Planes are taking off from UIManager");
         planeStateIndicatorIcon.sprite = planeStateData.planeUIElements[3].Icon;
         planeStateIndicatorText.text = planeStateData.planeUIElements[3].TextIndicator;
+        DisableWanderParkToggle();
     }
 
-    private void handleAllPlanesAreFlying()
+    private void HandleAllPlanesAreFlying()
     {
         Debug.Log("All planes are flying from UIManager");	
         planeStateIndicatorIcon.sprite = planeStateData.planeUIElements[4].Icon;
         planeStateIndicatorText.text = planeStateData.planeUIElements[4].TextIndicator;
+    }
+
+    private void DisableWanderParkToggle()
+    {
+        parkWanderButton.interactable = false;
     }
 }
