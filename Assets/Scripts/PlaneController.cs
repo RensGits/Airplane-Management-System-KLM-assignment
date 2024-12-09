@@ -18,18 +18,23 @@ public class PlaneController : MonoBehaviour
     private PlaneState currentState;
     private TextMeshPro identifier;
     private NavMeshAgent navMeshAgent;
+    private GameObject lights;
     private HangarController ascociatedHangar;
     public int planeId;
     private float timer;
 
 
     private void Awake()
-    {
+    {   
+        currentState = PlaneState.Wandering;
         navMeshAgent = GetComponent<NavMeshAgent>();
         identifier = GetComponentInChildren<TextMeshPro>();
-        timer = wanderInterval;
+        lights = transform.Find("Lights").gameObject;
+        
         GameManager.Instance.parkAllPlanes.AddListener(() => currentState = PlaneState.Parking);
-        currentState = PlaneState.Wandering;
+        GameManager.Instance.togglePlaneLights.AddListener(ToggleLights);
+        
+        timer = wanderInterval;
     }
 
     private void Update()
@@ -92,5 +97,11 @@ public class PlaneController : MonoBehaviour
 
         // Update the identifier text to match the planeId and add 1 to make it more palletable
         identifier.text = $"{planeId + 1}"; 
+    }
+
+    public void ToggleLights()
+    {
+        if (!lights) return;
+        lights.SetActive(!lights.activeSelf);
     }
 }

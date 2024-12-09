@@ -997,6 +997,9 @@ MonoBehaviour:
   parkAllPlanes:
     m_PersistentCalls:
       m_Calls: []
+  togglePlaneLights:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &107820531
 Transform:
   m_ObjectHideFlags: 0
@@ -6982,6 +6985,10 @@ PrefabInstance:
       propertyPath: hangar
       value: 
       objectReference: {fileID: 263060614}
+    - target: {fileID: 5478360715084705038, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5684232133528882782, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
       propertyPath: m_Name
       value: Plane_1
@@ -10316,6 +10323,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 5.07
       objectReference: {fileID: 0}
+    - target: {fileID: 5478360715084705038, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5684232133528882782, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
       propertyPath: m_Name
       value: Plane_3
@@ -11656,6 +11667,10 @@ PrefabInstance:
     - target: {fileID: 2161958817689734872, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -4.58
+      objectReference: {fileID: 0}
+    - target: {fileID: 5478360715084705038, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5684232133528882782, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
       propertyPath: m_Name

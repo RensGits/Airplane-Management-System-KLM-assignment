@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public HangarController[] hangars;
 
     [HideInInspector] public UnityEvent parkAllPlanes = new UnityEvent();
+    [HideInInspector] public UnityEvent togglePlaneLights = new UnityEvent();
 
     void Awake()
     {
@@ -28,6 +29,11 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             ParkAllPlanes();
+        }
+
+        if(Input.GetKeyDown(KeyCode.L))
+        {
+            TogglePlaneLights();
         }
     }
 
@@ -53,5 +59,10 @@ public class GameManager : MonoBehaviour
     public void ParkAllPlanes()
     {
         parkAllPlanes.Invoke();
+    }
+
+    public void TogglePlaneLights()
+    {
+        togglePlaneLights.Invoke();
     }
 }
