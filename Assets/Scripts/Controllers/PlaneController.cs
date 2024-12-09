@@ -2,33 +2,45 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using PathCreation;
 using TMPro;
 
 public class PlaneController : MonoBehaviour
 {
-    private enum PlaneState
+    public enum PlaneState
     {
         Wandering,
-        Parking
+        Parking,
+        Parked,
+        Taxiing,
+        Flying
     }
     [SerializeField] private float wanderRadius = 20f; // Radius for point selection.
     [SerializeField] private float wanderInterval = 5f; // Time interval for picking a new point.
     [SerializeField] private PlaneDataSO planeData;
 
-    private PlaneState currentState;
+    public PlaneState currentState;
     private TextMeshPro identifier;
     private NavMeshAgent navMeshAgent;
     private GameObject lights;
     private HangarController ascociatedHangar;
+    private TakeOffPointController ascociatedTakeOffPoint;
+    private PathCreator ascociatedPath;
+    private float distanceTravelled = 0f;
+    private float speed = 5f;
     public int planeId;
 
     public bool isParked;
+    public bool isAtTakeOffPoint;
+    public bool isFollowingPath;
     private float timer;
 
     void Awake()
     {
-        
+
         isParked = false;
+        isAtTakeOffPoint = false;
+        isFollowingPath = false;
         navMeshAgent = GetComponent<NavMeshAgent>();
         identifier = GetComponentInChildren<TextMeshPro>();
         lights = transform.Find("Lights").gameObject;
@@ -36,9 +48,10 @@ public class PlaneController : MonoBehaviour
     }
 
     void Start()
-    {   
+    {
         GameManager.Instance.planesAreWandering.AddListener(() => currentState = PlaneState.Wandering);
         GameManager.Instance.parkAllPlanes.AddListener(() => currentState = PlaneState.Parking);
+        GameManager.Instance.planesAreTakingOff.AddListener(() => currentState = PlaneState.Taxiing);
         GameManager.Instance.togglePlaneLights.AddListener(ToggleLights);
     }
 
@@ -52,12 +65,21 @@ public class PlaneController : MonoBehaviour
             case PlaneState.Parking:
                 handleParking();
                 break;
+            case PlaneState.Parked:
+                break;
+            case PlaneState.Taxiing:
+                handleTakeOff();
+                break;
+            case PlaneState.Flying:
+                FollowPath();
+                break;
         }
     }
 
     private void handleWandering()
     {
-        if(isParked){
+        if (isParked)
+        {
             isParked = false;
         }
 
@@ -85,12 +107,44 @@ public class PlaneController : MonoBehaviour
         // If a path is calculated, and the plane is within the stopping distance, it is parked
         if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
         {
-            isParked = true;
+            currentState = PlaneState.Parked;
             Debug.Log($"{gameObject.name} is parked at {ascociatedHangar.gameObject.name}");
         }
-        else
+    }
+
+    private void handleTakeOff()
+    {
+
+        if (!isAtTakeOffPoint)
         {
-            isParked = false;
+            // Assign the associated takeOffPoint & path based on the planeId
+            ascociatedTakeOffPoint = GameManager.Instance.takeOffPoints[planeId];
+            ascociatedPath = ascociatedTakeOffPoint.path;
+
+            // If a takeOffPoint is found with the same index as the planeId, navigate to the associated takeOffPoint
+            if (!ascociatedTakeOffPoint) return;
+            navMeshAgent.destination = ascociatedTakeOffPoint.transform.position;
+        }
+
+
+        // If a path is calculated, and the plane is within the stopping distance, it is parked
+        if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+        {
+            isAtTakeOffPoint = true;
+            navMeshAgent.enabled = false;
+            currentState = PlaneState.Flying;
+            Debug.Log($"{gameObject.name} is taking off from {ascociatedTakeOffPoint.gameObject.name}");
+        }
+    }
+
+    void FollowPath()
+    {
+        if (ascociatedPath != null)
+        {
+            // Move along the path
+            distanceTravelled += speed * Time.deltaTime;
+            transform.position = ascociatedPath.path.GetPointAtDistance(distanceTravelled);
+            transform.rotation = ascociatedPath.path.GetRotationAtDistance(distanceTravelled);
         }
     }
 

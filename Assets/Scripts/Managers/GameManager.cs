@@ -2,18 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using PathCreation;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     private PlaneController[] planes;
     [HideInInspector] public HangarController[] hangars;
+    [HideInInspector] public TakeOffPointController[] takeOffPoints;
+    [HideInInspector] public PathCreator[] paths;
     [HideInInspector] public UnityEvent planesAreWandering = new UnityEvent();
     [HideInInspector] public UnityEvent parkAllPlanes = new UnityEvent();
     [HideInInspector] public UnityEvent allPlanesAreParked = new UnityEvent();
+    [HideInInspector] public UnityEvent planesAreTakingOff = new UnityEvent();
+    [HideInInspector] public UnityEvent planesAreFlying = new UnityEvent();
     [HideInInspector] public UnityEvent togglePlaneLights = new UnityEvent();
 
     private bool isParkingInProgress = false;
+    private bool isTaxiInProgress = false;
 
     void Awake()
     {
@@ -32,6 +38,7 @@ public class GameManager : MonoBehaviour
         // Find all PlaneController & HangarController components in the scene
         planes = FindObjectsOfType<PlaneController>();
         hangars = FindObjectsOfType<HangarController>();
+        takeOffPoints = FindObjectsOfType<TakeOffPointController>();
 
         // Assign a unique planeId to each PlaneController based on its index
         for (int i = 0; i < planes.Length; i++)
@@ -45,28 +52,32 @@ public class GameManager : MonoBehaviour
             hangars[i].UpdateIdentifier(i);
         }
 
+        // Assign a unique takeOffPointId to each TakeOffPointController based on its index
+        for (int i = 0; i < takeOffPoints.Length; i++)
+        {
+            takeOffPoints[i].UpdateIdentifier(i);
+        }
+
         WanderPlanes();
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (isParkingInProgress)
         {
-            ParkAllPlanes();
+            CheckParkedPlanes();
         }
 
-        if (Input.GetKeyDown(KeyCode.L))
+        if(isTaxiInProgress)
         {
-            TogglePlaneLights();
+            CheckFlyingPlanes();
         }
-
-        if (!isParkingInProgress) return;
-        CheckParkedPlanes();
-
+        
     }
 
     public void WanderPlanes()
     {
+        Debug.Log("Planes are wandering!");	
         planesAreWandering.Invoke();
     }
 
@@ -74,6 +85,17 @@ public class GameManager : MonoBehaviour
     {
         parkAllPlanes.Invoke();
         isParkingInProgress = true;
+    }
+
+    public void PlanesAreTakingOff()
+    {
+        planesAreTakingOff.Invoke();
+        isTaxiInProgress = true;
+    }
+
+    public void PlanesAreFlying()
+    {
+        planesAreFlying.Invoke();
     }
 
     public void TogglePlaneLights()
@@ -85,7 +107,7 @@ public class GameManager : MonoBehaviour
     {
         foreach (PlaneController plane in planes)
         {
-            if (!plane.isParked)
+            if (!plane.currentState.Equals(PlaneController.PlaneState.Parked))
             {
                 return;
             }
@@ -94,5 +116,20 @@ public class GameManager : MonoBehaviour
         allPlanesAreParked.Invoke();
         isParkingInProgress = false;
         Debug.Log("All planes are parked!");
+    }
+
+    private void CheckFlyingPlanes()
+    {
+        foreach (PlaneController plane in planes)
+        {
+            if (!plane.currentState.Equals(PlaneController.PlaneState.Flying))
+            {
+                return;
+            }
+        }
+
+        planesAreFlying.Invoke();
+        isTaxiInProgress = false;
+        Debug.Log("All planes are flying!");
     }
 }
