@@ -24,20 +24,22 @@ public class PlaneController : MonoBehaviour
     private float timer;
 
 
-    private void Awake()
+    void Awake()
     {   
         currentState = PlaneState.Wandering;
         navMeshAgent = GetComponent<NavMeshAgent>();
         identifier = GetComponentInChildren<TextMeshPro>();
-        lights = transform.Find("Lights").gameObject;
-        
-        GameManager.Instance.parkAllPlanes.AddListener(() => currentState = PlaneState.Parking);
-        GameManager.Instance.togglePlaneLights.AddListener(ToggleLights);
-        
+        lights = transform.Find("Lights").gameObject;    
         timer = wanderInterval;
     }
 
-    private void Update()
+    void Start()
+    {
+        GameManager.Instance.parkAllPlanes.AddListener(() => currentState = PlaneState.Parking);
+        GameManager.Instance.togglePlaneLights.AddListener(ToggleLights);
+    }
+
+    void Update()
     {
         switch (currentState)
         {
