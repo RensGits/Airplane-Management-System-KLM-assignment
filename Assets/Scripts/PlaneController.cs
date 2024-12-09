@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using TMPro;
 
 public class PlaneController : MonoBehaviour
 {
@@ -11,12 +12,16 @@ public class PlaneController : MonoBehaviour
     [SerializeField] private GameObject hangar;
 
     [SerializeField] private PlaneDataSO planeData;
+
+    private TextMeshPro identifier;
     private NavMeshAgent navMeshAgent;
-    private float timer; 
+    public int planeId;
+    private float timer;
 
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        identifier = GetComponentInChildren<TextMeshPro>();
         timer = wanderInterval;
         LogPlaneData();
     }
@@ -44,7 +49,7 @@ public class PlaneController : MonoBehaviour
         // Project the random point onto the NavMesh
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, radius, NavMesh.AllAreas))
         {
-            return hit.position; // Return the valid point on the NavMesh
+            return hit.position; 
         }
 
         // If no valid point is found, return the agent's current position
@@ -54,5 +59,14 @@ public class PlaneController : MonoBehaviour
     private void LogPlaneData()
     {
         Debug.Log($"Plane type: {planeData.type}, Plane brand: {planeData.brand}");
+    }
+
+    public void UpdateIdentifier(int newId)
+    {
+        planeId = newId;
+
+        if (!identifier) return;
+
+        identifier.text = $"{planeId}"; // Update the TextMeshPro text
     }
 }
