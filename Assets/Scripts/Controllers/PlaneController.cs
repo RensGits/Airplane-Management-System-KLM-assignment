@@ -57,6 +57,10 @@ public class PlaneController : MonoBehaviour
 
     private void handleWandering()
     {
+        if(isParked){
+            isParked = false;
+        }
+
         timer += Time.deltaTime;
 
         if (timer >= wanderInterval)

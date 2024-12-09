@@ -1608,7 +1608,7 @@ GameObject:
   - component: {fileID: 184427897}
   - component: {fileID: 184427896}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: ToggleLightButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6204,7 +6204,7 @@ GameObject:
   - component: {fileID: 759076028}
   - component: {fileID: 759076027}
   m_Layer: 5
-  m_Name: Button
+  m_Name: ParkWanderButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8330,6 +8330,10 @@ PrefabInstance:
       propertyPath: hangar
       value: 
       objectReference: {fileID: 263060614}
+    - target: {fileID: 2161958817689734872, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5478360715084705038, guid: df3ed748b33e347d093c5eb104e90311, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -14306,6 +14310,8 @@ MonoBehaviour:
   planeStateIndicatorIcon: {fileID: 344477224}
   planeStateIndicatorText: {fileID: 1565456071}
   planeStateData: {fileID: 11400000, guid: 95bf641c3bae34d4fada1f43ebcc30df, type: 2}
+  parkWanderButton: {fileID: 759076027}
+  parkWanderButtonText: {fileID: 1646143534}
 --- !u!1 &1867592171
 GameObject:
   m_ObjectHideFlags: 0
