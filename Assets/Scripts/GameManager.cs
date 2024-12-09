@@ -1,14 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
     private PlaneController[] planes;
-    private HangarController[] hangars;
+    public HangarController[] hangars;
+
+    [HideInInspector] public UnityEvent parkAllPlanes = new UnityEvent();
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ParkAllPlanes();
+        }
+    }
+
     void Start()
     {
-        // Find all PlaneController components in the scene
+        // Find all PlaneController & HangarController components in the scene
         planes = FindObjectsOfType<PlaneController>();
         hangars = FindObjectsOfType<HangarController>();
 
@@ -18,14 +43,15 @@ public class GameManager : MonoBehaviour
             planes[i].UpdateIdentifier(i);
         }
 
+        // Assign a unique hangarId to each HangarController based on its index
         for (int i = 0; i < hangars.Length; i++)
         {
             hangars[i].UpdateIdentifier(i);
         }
     }
 
-    void Update()
+    public void ParkAllPlanes()
     {
-
+        parkAllPlanes.Invoke();
     }
 }

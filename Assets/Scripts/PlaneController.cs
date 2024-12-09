@@ -6,37 +6,65 @@ using TMPro;
 
 public class PlaneController : MonoBehaviour
 {
+    private enum PlaneState
+    {
+        Wandering,
+        Parking
+    }
     [SerializeField] private float wanderRadius = 20f; // Radius for point selection.
     [SerializeField] private float wanderInterval = 5f; // Time interval for picking a new point.
-
-    [SerializeField] private GameObject hangar;
-
     [SerializeField] private PlaneDataSO planeData;
 
+    private PlaneState currentState;
     private TextMeshPro identifier;
     private NavMeshAgent navMeshAgent;
+    private HangarController ascociatedHangar;
     public int planeId;
     private float timer;
+
 
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         identifier = GetComponentInChildren<TextMeshPro>();
         timer = wanderInterval;
-        LogPlaneData();
+        GameManager.Instance.parkAllPlanes.AddListener(() => currentState = PlaneState.Parking);
+        currentState = PlaneState.Wandering;
     }
 
     private void Update()
     {
-        // navMeshAgent.destination = hangar.transform.position;
+        switch (currentState)
+        {
+            case PlaneState.Wandering:
+                handleWandering();
+                break;
+            case PlaneState.Parking:
+                handleParking();
+                break;
+        }
+    }
+
+    private void handleWandering()
+    {
         timer += Time.deltaTime;
 
         if (timer >= wanderInterval)
         {
-            Vector3 newDestination = GetRandomPointOnNavMesh(transform.position, wanderRadius);
-            navMeshAgent.SetDestination(newDestination);
+            Vector3 newPos = GetRandomPointOnNavMesh(transform.position, wanderRadius);
+            navMeshAgent.SetDestination(newPos);
             timer = 0;
         }
+    }
+
+    private void handleParking()
+    {
+        // Assign the associated hangar based on the planeId
+        ascociatedHangar = GameManager.Instance.hangars[planeId];
+
+        // If a hanger is found with the same index as the planeId, park the plane in the associated hangar
+        if (!ascociatedHangar) return;
+        navMeshAgent.destination = ascociatedHangar.transform.position;
     }
 
     private Vector3 GetRandomPointOnNavMesh(Vector3 origin, float radius)
@@ -49,16 +77,11 @@ public class PlaneController : MonoBehaviour
         // Project the random point onto the NavMesh
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, radius, NavMesh.AllAreas))
         {
-            return hit.position; 
+            return hit.position;
         }
 
         // If no valid point is found, return the agent's current position
         return transform.position;
-    }
-
-    private void LogPlaneData()
-    {
-        Debug.Log($"Plane type: {planeData.type}, Plane brand: {planeData.brand}");
     }
 
     public void UpdateIdentifier(int newId)
@@ -67,6 +90,7 @@ public class PlaneController : MonoBehaviour
 
         if (!identifier) return;
 
-        identifier.text = $"{planeId}"; // Update the TextMeshPro text
+        // Update the identifier text to match the planeId and add 1 to make it more palletable
+        identifier.text = $"{planeId + 1}"; 
     }
 }

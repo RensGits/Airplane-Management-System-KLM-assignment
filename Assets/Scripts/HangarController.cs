@@ -20,6 +20,7 @@ public class HangarController : MonoBehaviour
 
         if (!identifier) return;
 
-        identifier.text = $"{hangarId}"; // Update the TextMeshPro text
+        // Update the identifier text to match the hangarId and add 1 to make it more palletable
+        identifier.text = $"{hangarId + 1}"; 
     }
 }
