@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
 
     private AllPlanesTransitionState planesState;   
 
+    // Create singleton
     void Awake()
     {
         if (Instance == null)
@@ -85,7 +86,6 @@ public class GameManager : MonoBehaviour
         {
             CheckFlyingFinished();
         }
-
     }
 
     public void WanderPlanes()
@@ -118,18 +118,7 @@ public class GameManager : MonoBehaviour
         planesState = AllPlanesTransitionState.None;
     }
 
-    public void EnableLights()
-    {
-        areLightsOn = true;
-        enableLights.Invoke();
-    }
-
-    public void DisableLights()
-    {
-        areLightsOn = false;
-        disableLights.Invoke();
-    }
-
+    // Invoked the PlanesAreParked when all planes are parked
     private void CheckParkedPlanes()
     {
         foreach (PlaneController plane in planes)
@@ -143,6 +132,7 @@ public class GameManager : MonoBehaviour
         PlanesAreParked();
     }
 
+    // Invoked the PlanesAreFlying when all planes are flying
     private void CheckFlyingPlanes()
     {
         foreach (PlaneController plane in planes)
@@ -156,6 +146,7 @@ public class GameManager : MonoBehaviour
         PlanesAreFlying();
     }
 
+    // Invoked the WanderPlanes when all planes are finished flying / landed
     private void CheckFlyingFinished()
     {
         foreach (PlaneController plane in planes)
@@ -167,5 +158,17 @@ public class GameManager : MonoBehaviour
         }
 
         WanderPlanes();
+    }
+
+    public void EnableLights()
+    {
+        areLightsOn = true;
+        enableLights.Invoke();
+    }
+
+    public void DisableLights()
+    {
+        areLightsOn = false;
+        disableLights.Invoke();
     }
 }

@@ -79,6 +79,19 @@ public class PlaneController : MonoBehaviour
         }
     }
 
+    // Renders the plane's info panel when the mouse hovers over the plane
+    void OnMouseEnter()
+    {
+        UIManager.Instance.EnablePlaneInfoPanel(planeId, planeData.type, planeData.brand, currentState.ToString());
+    }
+
+    // Disables the plane's info panel when the mouse exits the plane
+    void OnMouseExit()
+    {
+        UIManager.Instance.DisablePlaneInfoPanel();
+    }
+
+    // Makes the plane wander in random directions
     private void handleWandering()
     {
         timer += Time.deltaTime;
@@ -133,6 +146,7 @@ public class PlaneController : MonoBehaviour
         }
     }
 
+    // Makes the plane follow the ascociated PathCreator path 
     private void FollowPath()
     {
         if (ascociatedPath != null && distanceTravelled <= (ascociatedPath.path.length + landingRunwayLength))
