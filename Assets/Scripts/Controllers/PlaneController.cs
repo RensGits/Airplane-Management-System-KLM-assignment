@@ -7,20 +7,10 @@ using TMPro;
 
 public class PlaneController : MonoBehaviour
 {
-    public enum PlaneState
-    {
-        Wandering,
-        Parking,
-        Parked,
-        Taxiing,
-        Flying,
-        FinishedFlying
-    }
     [SerializeField] private float wanderRadius = 20f; // Radius for point selection.
     [SerializeField] private float wanderInterval = 5f; // Time interval for picking a new point.
     [SerializeField] private PlaneDataSO planeData;
 
-    public PlaneState currentState;
     private TextMeshPro identifier;
     private NavMeshAgent navMeshAgent;
     private GameObject lights;
@@ -33,18 +23,23 @@ public class PlaneController : MonoBehaviour
     private float minSpeed = 0.5f;
     private float landingRunwayLength = 10f;
     public int planeId;
-
-    public bool isParked;
     public bool isAtTakeOffPoint;
-    public bool isFollowingPath;
     private float timer;
+
+    public enum PlaneState
+    {
+        Wandering,
+        Parking,
+        Parked,
+        Taxiing,
+        Flying,
+        FinishedFlying
+    }
+    public PlaneState currentState;
 
     void Awake()
     {
-
-        isParked = false;
         isAtTakeOffPoint = false;
-        isFollowingPath = false;
         navMeshAgent = GetComponent<NavMeshAgent>();
         identifier = GetComponentInChildren<TextMeshPro>();
         lights = transform.Find("Lights").gameObject;
@@ -57,7 +52,8 @@ public class PlaneController : MonoBehaviour
         GameManager.Instance.planesAreWandering.AddListener(() => currentState = PlaneState.Wandering);
         GameManager.Instance.parkAllPlanes.AddListener(() => currentState = PlaneState.Parking);
         GameManager.Instance.planesAreTakingOff.AddListener(() => currentState = PlaneState.Taxiing);
-        GameManager.Instance.togglePlaneLights.AddListener(ToggleLights);
+        GameManager.Instance.enableLights.AddListener(HandleEnableLights);
+        GameManager.Instance.disableLights.AddListener(HandleDisableLights);
     }
 
     void Update()
@@ -85,11 +81,6 @@ public class PlaneController : MonoBehaviour
 
     private void handleWandering()
     {
-        if (isParked)
-        {
-            isParked = false;
-        }
-
         timer += Time.deltaTime;
 
         if (timer >= wanderInterval && navMeshAgent.enabled)
@@ -102,7 +93,7 @@ public class PlaneController : MonoBehaviour
 
     private void handleParking()
     {
-        if (isParked) return;
+        if (currentState == PlaneState.Parked) return;
 
         // Assign the associated hangar based on the planeId
         ascociatedHangar = GameManager.Instance.hangars[planeId];
@@ -115,7 +106,6 @@ public class PlaneController : MonoBehaviour
         if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
         {
             currentState = PlaneState.Parked;
-            Debug.Log($"{gameObject.name} is parked at {ascociatedHangar.gameObject.name}");
         }
     }
 
@@ -140,7 +130,6 @@ public class PlaneController : MonoBehaviour
             isAtTakeOffPoint = true;
             navMeshAgent.enabled = false;
             currentState = PlaneState.Flying;
-            Debug.Log($"{gameObject.name} is taking off from {ascociatedTakeOffPoint.gameObject.name}");
         }
     }
 
@@ -183,7 +172,6 @@ public class PlaneController : MonoBehaviour
 
     private void OnFlyingFinished()
     {
-        Debug.Log($"{gameObject.name} has finished flying");
         // Disable the trails
         if (trails.activeSelf)
         {
@@ -225,9 +213,15 @@ public class PlaneController : MonoBehaviour
         identifier.text = $"{planeId + 1}";
     }
 
-    public void ToggleLights()
+    private void HandleEnableLights()
     {
         if (!lights) return;
-        lights.SetActive(!lights.activeSelf);
+        lights.SetActive(true);
+    }
+
+    private void HandleDisableLights()
+    {
+        if (!lights) return;
+        lights.SetActive(false);
     }
 }

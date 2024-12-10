@@ -2,26 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using PathCreation;
 
 public class GameManager : MonoBehaviour
-{
+{ 
     public static GameManager Instance;
     private PlaneController[] planes;
     [HideInInspector] public HangarController[] hangars;
-    [HideInInspector] public TakeOffPointController[] takeOffPoints;
-    [HideInInspector] public PathCreator[] paths;
+    [HideInInspector] public TakeOffPointController[] takeOffPoints;    
     [HideInInspector] public UnityEvent planesAreWandering = new UnityEvent();
     [HideInInspector] public UnityEvent parkAllPlanes = new UnityEvent();
     [HideInInspector] public UnityEvent allPlanesAreParked = new UnityEvent();
     [HideInInspector] public UnityEvent planesAreTakingOff = new UnityEvent();
     [HideInInspector] public UnityEvent planesAreFlying = new UnityEvent();
-    [HideInInspector] public UnityEvent togglePlaneLights = new UnityEvent();
+    [HideInInspector] public UnityEvent enableLights = new UnityEvent();
+    [HideInInspector] public UnityEvent disableLights = new UnityEvent();
+    public bool areLightsOn = false;
 
-    private bool isParkingInProgress = false;
-    private bool isTaxiInProgress = false;
+    private enum AllPlanesTransitionState
+    {
+        IsParkingInProgress,
+        IsTaxiInProgress,
+        IsFlyingInProgress,
+        None
+    }
 
-    private bool isFlyingInProgress = false;
+    private AllPlanesTransitionState planesState;   
 
     void Awake()
     {
@@ -61,84 +66,94 @@ public class GameManager : MonoBehaviour
         }
 
         WanderPlanes();
+        DisableLights();
     }
 
     void Update()
     {
-        if (isParkingInProgress)
+        if (planesState == AllPlanesTransitionState.IsParkingInProgress)
         {
             CheckParkedPlanes();
         }
 
-        if(isTaxiInProgress)
+        if (planesState == AllPlanesTransitionState.IsTaxiInProgress)
         {
             CheckFlyingPlanes();
         }
 
-        if(isFlyingInProgress)
+        if (planesState == AllPlanesTransitionState.IsFlyingInProgress)
         {
             CheckFlyingFinished();
         }
-        
+
     }
 
     public void WanderPlanes()
     {
-        Debug.Log("Planes are wandering!");	
         planesAreWandering.Invoke();
+        planesState = AllPlanesTransitionState.None;
     }
 
     public void ParkAllPlanes()
     {
         parkAllPlanes.Invoke();
-        isParkingInProgress = true;
+        planesState = AllPlanesTransitionState.IsParkingInProgress;
     }
 
     public void PlanesAreTakingOff()
     {
         planesAreTakingOff.Invoke();
-        isTaxiInProgress = true;
+        planesState = AllPlanesTransitionState.IsTaxiInProgress;
     }
 
     public void PlanesAreFlying()
     {
         planesAreFlying.Invoke();
+        planesState = AllPlanesTransitionState.IsFlyingInProgress;
     }
 
-    public void TogglePlaneLights()
+    private void PlanesAreParked()
     {
-        togglePlaneLights.Invoke();
+        allPlanesAreParked.Invoke();
+        planesState = AllPlanesTransitionState.None;
+    }
+
+    public void EnableLights()
+    {
+        areLightsOn = true;
+        enableLights.Invoke();
+    }
+
+    public void DisableLights()
+    {
+        areLightsOn = false;
+        disableLights.Invoke();
     }
 
     private void CheckParkedPlanes()
     {
         foreach (PlaneController plane in planes)
         {
-            if (!plane.currentState.Equals(PlaneController.PlaneState.Parked))
+            if (plane.currentState != PlaneController.PlaneState.Parked)
             {
                 return;
             }
         }
 
-        allPlanesAreParked.Invoke();
-        isParkingInProgress = false;
-        Debug.Log("All planes are parked!");
+        PlanesAreParked();
     }
 
     private void CheckFlyingPlanes()
     {
         foreach (PlaneController plane in planes)
         {
-            if (!plane.currentState.Equals(PlaneController.PlaneState.Flying))
+            if (plane.currentState != PlaneController.PlaneState.Flying)
             {
                 return;
             }
         }
 
-        planesAreFlying.Invoke();
-        isTaxiInProgress = false;
-        isFlyingInProgress = true;
-        Debug.Log("All planes are flying!");
+        PlanesAreFlying();
     }
 
     private void CheckFlyingFinished()
@@ -151,8 +166,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        isFlyingInProgress = false;
-        planesAreWandering.Invoke();
-        Debug.Log("All planes are wandering again!");
+        WanderPlanes();
     }
 }

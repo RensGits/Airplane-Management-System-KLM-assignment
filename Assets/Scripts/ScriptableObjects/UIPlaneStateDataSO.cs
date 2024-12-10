@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewUIPlaneStateData", menuName = "UI/PlaneStateData")]
+
 [Serializable]
 public class UIPlaneStateDataSO : ScriptableObject
 {

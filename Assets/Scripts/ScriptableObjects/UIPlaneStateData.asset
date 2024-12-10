@@ -16,7 +16,7 @@ MonoBehaviour:
   - <Icon>k__BackingField: {fileID: 21300000, guid: d26b74342a3859e43b5d8e355b5e5036, type: 3}
     <TextIndicator>k__BackingField: Planes are wandering
   - <Icon>k__BackingField: {fileID: 21300000, guid: b68fffe808ca9b140804e118d039df82, type: 3}
-    <TextIndicator>k__BackingField: Planes are heading to their hangar
+    <TextIndicator>k__BackingField: Heading to  hangar
   - <Icon>k__BackingField: {fileID: 21300000, guid: c63f2f120bd4ea6459e6904cb27890f4, type: 3}
     <TextIndicator>k__BackingField: All Planes are parked
   - <Icon>k__BackingField: {fileID: 21300000, guid: 23eb59bc068bf81418adfde18cd3599d, type: 3}
