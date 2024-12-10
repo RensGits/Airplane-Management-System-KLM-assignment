@@ -4,8 +4,9 @@
 
 This Unity-based airplane manage system was developed as part of an assigment for KLM.
 The system includes:
-- The ability for planes to wander in random directions
-- The ability for planes to park in their respective hangars
+- Automatic assignment of planes to hangars and runways on startup
+- The ability for planes to wander in random directions (NavMesh)
+- The ability for planes to park in their respective hangars through the front door (NavMesh)
 - The ability for planes to turn on and off their lights
 - The ability for planes to take of in flight from their respective runways and return back to wandering after flight
 - The ability for users to hover over planes to see more details
