@@ -23,3 +23,5 @@ The system includes:
 <br/>
 
 [![Watch the video](https://i.imgur.com/OxqEpyH.png)](https://www.youtube.com/watch?v=I1htnzbV0Ds)
+
+**Click the image above to see a video preview!**
