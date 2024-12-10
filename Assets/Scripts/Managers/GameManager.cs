@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
     private bool isParkingInProgress = false;
     private bool isTaxiInProgress = false;
 
+    private bool isFlyingInProgress = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -71,6 +73,11 @@ public class GameManager : MonoBehaviour
         if(isTaxiInProgress)
         {
             CheckFlyingPlanes();
+        }
+
+        if(isFlyingInProgress)
+        {
+            CheckFlyingFinished();
         }
         
     }
@@ -130,6 +137,22 @@ public class GameManager : MonoBehaviour
 
         planesAreFlying.Invoke();
         isTaxiInProgress = false;
+        isFlyingInProgress = true;
         Debug.Log("All planes are flying!");
+    }
+
+    private void CheckFlyingFinished()
+    {
+        foreach (PlaneController plane in planes)
+        {
+            if (!plane.currentState.Equals(PlaneController.PlaneState.FinishedFlying))
+            {
+                return;
+            }
+        }
+
+        isFlyingInProgress = false;
+        planesAreWandering.Invoke();
+        Debug.Log("All planes are wandering again!");
     }
 }

@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI planeStateIndicatorText;
     [SerializeField] private UIPlaneStateDataSO planeStateData;
     [SerializeField] private Button parkWanderButton;
+    [SerializeField] private Button takeOffButton;
     [SerializeField] private TextMeshProUGUI parkWanderButtonText;
 
     void Awake()
@@ -21,6 +22,7 @@ public class UIManager : MonoBehaviour
 
     private void HandlePlanesAreWandering()
     {   
+        EnableWanderParkToggle();
         Debug.Log("Planes are wandering from UIManager");	
         // Adds the appropriate listener to the button
         parkWanderButton.onClick.RemoveAllListeners();
@@ -34,6 +36,8 @@ public class UIManager : MonoBehaviour
 
     private void HandleParkAllPlanes()
     {
+        EnableWanderParkToggle();
+
         // Adds the appropriate listener to the button
         parkWanderButton.onClick.RemoveAllListeners();
         parkWanderButton.onClick.AddListener(() => GameManager.Instance.WanderPlanes());
@@ -70,5 +74,13 @@ public class UIManager : MonoBehaviour
     private void DisableWanderParkToggle()
     {
         parkWanderButton.interactable = false;
+        takeOffButton.interactable = false;
+    }
+
+    private void EnableWanderParkToggle()
+    {
+        if(parkWanderButton.interactable && takeOffButton.interactable) return;
+        parkWanderButton.interactable = true;
+        takeOffButton.interactable = true;
     }
 }

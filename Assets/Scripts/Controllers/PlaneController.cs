@@ -13,7 +13,8 @@ public class PlaneController : MonoBehaviour
         Parking,
         Parked,
         Taxiing,
-        Flying
+        Flying,
+        FinishedFlying
     }
     [SerializeField] private float wanderRadius = 20f; // Radius for point selection.
     [SerializeField] private float wanderInterval = 5f; // Time interval for picking a new point.
@@ -23,11 +24,14 @@ public class PlaneController : MonoBehaviour
     private TextMeshPro identifier;
     private NavMeshAgent navMeshAgent;
     private GameObject lights;
+    private GameObject trails;
     private HangarController ascociatedHangar;
     private TakeOffPointController ascociatedTakeOffPoint;
     private PathCreator ascociatedPath;
     private float distanceTravelled = 0f;
     private float speed = 5f;
+    private float minSpeed = 0.5f;
+    private float landingRunwayLength = 10f;
     public int planeId;
 
     public bool isParked;
@@ -44,6 +48,7 @@ public class PlaneController : MonoBehaviour
         navMeshAgent = GetComponent<NavMeshAgent>();
         identifier = GetComponentInChildren<TextMeshPro>();
         lights = transform.Find("Lights").gameObject;
+        trails = transform.Find("Trails").gameObject;
         timer = wanderInterval;
     }
 
@@ -73,6 +78,8 @@ public class PlaneController : MonoBehaviour
             case PlaneState.Flying:
                 FollowPath();
                 break;
+            case PlaneState.FinishedFlying:
+                return;
         }
     }
 
@@ -85,7 +92,7 @@ public class PlaneController : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        if (timer >= wanderInterval)
+        if (timer >= wanderInterval && navMeshAgent.enabled)
         {
             Vector3 newPos = GetRandomPointOnNavMesh(transform.position, wanderRadius);
             navMeshAgent.SetDestination(newPos);
@@ -137,15 +144,58 @@ public class PlaneController : MonoBehaviour
         }
     }
 
-    void FollowPath()
+    private void FollowPath()
     {
-        if (ascociatedPath != null)
+        if (ascociatedPath != null && distanceTravelled <= (ascociatedPath.path.length + landingRunwayLength))
         {
-            // Move along the path
-            distanceTravelled += speed * Time.deltaTime;
+
+            // Calculate the remaining distance to the end of the path
+            float remainingDistance = ascociatedPath.path.length + landingRunwayLength - distanceTravelled;
+
+            // Slow down when within a certain range of the end of the path
+            if (remainingDistance <= landingRunwayLength)
+            {
+                // Calculate a speed multiplier based on remaining distance
+                float slowDownFactor = Mathf.Clamp01(remainingDistance / landingRunwayLength);
+                float currentSpeed = Mathf.Max(speed * slowDownFactor, minSpeed); // Ensure it doesn't go below minSpeed
+                distanceTravelled += currentSpeed * Time.deltaTime;
+            }
+            else
+            {
+                // Maintain normal speed
+                distanceTravelled += speed * Time.deltaTime;
+            }
+
+            // Move the plane along the path
             transform.position = ascociatedPath.path.GetPointAtDistance(distanceTravelled);
             transform.rotation = ascociatedPath.path.GetRotationAtDistance(distanceTravelled);
+            // Enable the trails
+            if (!trails.activeSelf)
+            {
+                trails.SetActive(true);
+            }
         }
+        else
+        {
+            OnFlyingFinished();
+        }
+    }
+
+    private void OnFlyingFinished()
+    {
+        Debug.Log($"{gameObject.name} has finished flying");
+        // Disable the trails
+        if (trails.activeSelf)
+        {
+            trails.SetActive(false);
+        }
+
+        // Reset the distance travelled
+        distanceTravelled = 0f;
+        isAtTakeOffPoint = false;
+        navMeshAgent.enabled = true;
+
+        currentState = PlaneState.FinishedFlying;
     }
 
     private Vector3 GetRandomPointOnNavMesh(Vector3 origin, float radius)
