@@ -18,3 +18,8 @@ The system includes:
 2. Open in Unity, using the specified Unity version: **2020.3.48f1**
 3. Press **Play** to start the simulation
 
+<br/>
+<br/>
+<br/>
+
+[![Watch the video](https://i.imgur.com/OxqEpyH.png)](https://www.youtube.com/watch?v=I1htnzbV0Ds)
